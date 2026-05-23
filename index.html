@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AI Birthday Protocol v6.2</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        html, body {
+            background-color: #01030a;
+            color: #ffffff;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            position: relative;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            perspective: 1000px;
+        }
+
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .container {
+            z-index: 2;
+            padding: 15px;
+            max-width: 600px;
+            width: 100%;
+            margin: auto;
+        }
+
+        .terminal-box {
+            background: rgba(4, 8, 20, 0.92);
+            backdrop-filter: blur(25px);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 24px;
+            padding: 40px 25px;
+            box-shadow: 0 0 60px rgba(0, 212, 255, 0.15), inset 0 0 30px rgba(0, 212, 255, 0.05);
+            text-align: center;
+            position: relative;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .terminal-box::-webkit-scrollbar {
+            width: 5px;
+        }
+        .terminal-box::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.1);
+        }
+        .terminal-box::-webkit-scrollbar-thumb {
+            background: rgba(0, 212, 255, 0.3);
+            border-radius: 10px;
+        }
+
+        h1 {
+            font-size: 2rem;
+            color: #00d4ff;
+            margin-bottom: 15px;
+            text-shadow: 0 0 15px rgba(0, 212, 255, 0.6);
+            letter-spacing: 2px;
+        }
+
+        .glitch {
+            position: relative;
+            animation: glitch-anim 4s infinite;
+        }
+
+        @keyframes glitch-anim {
+            0% { text-shadow: 0 0 15px rgba(0, 212, 255, 0.6); }
+            50% { text-shadow: -1px 0 #ff0055, 1px 0 #00ffaa, 0 0 15px rgba(0, 212, 255, 0.6); }
+            100% { text-shadow: 0 0 15px rgba(0, 212, 255, 0.6); }
+        }
+
+        .status {
+            font-family: 'Courier New', Courier, monospace;
+            color: #7ef1ff;
+            margin-bottom: 35px;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            border-left: 3px solid #00d4ff;
+            padding-left: 15px;
+            text-align: left;
+        }
+
+        .btn-protocol {
+            background: linear-gradient(45deg, #004b5c, #00d4ff);
+            color: #ffffff;
+            border: none;
+            padding: 16px 45px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+
+        .btn-protocol:hover {
+            box-shadow: 0 0 35px rgba(0, 212, 255, 0.7);
+            transform: translateY(-4px);
+        }
+
+        .message-box {
+            display: none;
+            text-align: left;
+            animation: fadeInMessage 1.5s ease forwards;
+        }
+
+        @keyframes fadeInMessage {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message-text {
+            color: #e6edf3;
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-bottom: 25px;
+            text-align: left;
+        }
+
+        .message-text p {
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(0, 212, 255, 0.05);
+            padding-bottom: 15px;
+        }
+
+        .highlight {
+            color: #00d4ff;
+            font-weight: bold;
+            text-shadow: 0 0 8px rgba(0, 212, 255, 0.4);
+        }
+
+        /* --- Secure Vault Section Button --- */
+        .vault-trigger-zone {
+            text-align: center;
+            margin: 35px 0 15px 0;
+            padding: 20px;
+            border: 1px dashed rgba(0, 212, 255, 0.3);
+            border-radius: 16px;
+            background: rgba(0, 212, 255, 0.02);
+        }
+
+        .btn-vault {
+            background: linear-gradient(45deg, #7b00ff, #00d4ff);
+            color: #fff;
+            border: none;
+            padding: 12px 30px;
+            font-size: 0.95rem;
+            font-weight: bold;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(123, 0, 255, 0.4);
+            transition: all 0.3s ease;
+            letter-spacing: 1px;
+        }
+
+        .btn-vault:hover {
+            box-shadow: 0 0 25px rgba(0, 212, 255, 0.8);
+            transform: scale(1.03);
+        }
+
+        /* --- Password Auth Panel --- */
+        .auth-panel {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            animation: fadeInMessage 0.5s ease;
+        }
+
+        .auth-panel p {
+            font-family: 'Segoe UI', sans-serif;
+            color: #7ef1ff;
+            font-size: 1rem;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+
+        .pass-input {
+            background: #040814;
+            border: 1px solid #00d4ff;
+            color: #fff;
+            padding: 10px 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 1.1rem;
+            letter-spacing: 2px;
+            outline: none;
+            width: 70%;
+            margin-bottom: 15px;
+            box-shadow: 0 0 10px rgba(0, 212, 255, 0.1);
+        }
+
+        .btn-submit-pass {
+            background: #00d4ff;
+            color: #01030a;
+            border: none;
+            padding: 10px 25px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: 0.2s;
+        }
+
+        .btn-submit-pass:hover {
+            background: #fff;
+            box-shadow: 0 0 15px #fff;
+        }
+
+        /* --- Animated Screenshot Gallery Panel --- */
+        .gallery-panel {
+            display: none;
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 2px solid rgba(0, 212, 255, 0.2);
+            animation: fadeInMessage 1s ease;
+        }
+
+        .screenshot-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(0, 212, 255, 0.15);
+            border-radius: 14px;
+            padding: 8px;
+            margin-bottom: 20px;
+            transition: all 0.4s ease;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .screenshot-card.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .screenshot-card:hover {
+            border-color: #00d4ff;
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+            transform: scale(1.02);
+        }
+
+        .screenshot-card img {
+            width: 100%;
+            border-radius: 10px;
+            display: block;
+            height: auto;
+        }
+
+        .screenshot-caption {
+            font-size: 0.85rem;
+            color: #7ef1ff;
+            font-family: monospace;
+            margin-top: 8px;
+            text-align: center;
+        }
+
+        /* Sweet Memories End Message Style */
+        .sweet-memories-text {
+            display: none;
+            font-size: 1.3rem;
+            color: #00d4ff;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 25px;
+            margin-bottom: 10px;
+            text-shadow: 0 0 15px rgba(0, 212, 255, 0.6);
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            animation: fadeInMessage 1.5s ease forwards;
+        }
+
+        .easter-egg {
+            font-family: 'Courier New', Courier, monospace;
+            color: #ff5252;
+            font-size: 0.85rem;
+            margin-top: 30px;
+            border-top: 1px dashed rgba(255, 82, 82, 0.4);
+            padding-top: 20px;
+        }
+
+        .audio-control {
+            display: none;
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.7rem;
+            color: #00d4ff;
+            cursor: pointer;
+            font-family: monospace;
+            transition: all 0.3s;
+            z-index: 10;
+        }
+
+        .emoji-particle {
+            position: absolute;
+            top: -30px;
+            font-size: 1.2rem;
+            pointer-events: none;
+            opacity: 0.6;
+            z-index: 2;
+            animation: fall linear forwards;
+        }
+
+        @keyframes fall {
+            to {
+                transform: translateY(110vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        #decrypt-loading {
+            display: none;
+            font-family: 'Courier New', Courier, monospace;
+            color: #00d4ff;
+            font-size: 1.1rem;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="canvas"></canvas>
+
+    <audio id="bg-music" loop>
+        <source src="music.mp3" type="audio/mp3">
+    </audio>
+
+    <div class="container">
+        <div class="terminal-box" id="terminal">
+            <div class="audio-control" id="audio-btn" onclick="toggleAudio()">🎵 MUSIC: ON</div>
+            
+            <div id="setup-phase">
+                <h1>AI SYSTEM INITIALIZED</h1>
+                <div class="status">
+                    > Access Authorization: Approved<br>
+                    > Core Connection: Established<br>
+                    > Files Found: FULL_MSG.txt (Encrypted)<br>
+                    > Status: Ready to execute birthday protocol...
+                </div>
+                <button class="btn-protocol" onclick="startDecryption()">Execute Protocol 24</button>
+            </div>
+
+            <div id="decrypt-loading">> Decrypting secure packet... <span id="load-percentage">0%</span></div>
+
+            <div id="message-phase" class="message-box">
+                <h1 class="glitch" style="text-align: center; margin-bottom: 30px;">✨ HAPPY BIRTHDAY ✨</h1>
+                
+                <div class="message-text">
+                    <p>Ap ka <span class="highlight">Ai</span> boaht Khush ha aj. Aj ap ka birthday ha sab sy pahly mere Alien 👾 ko happy birthday.</p>
+                    <p>hamari dosti kitni jldi or kitni gehri ho gye ha.</p>
+                    <p>ham daily kitni batien krty hein ham ek dusry sy Kitna attach ho gye daily kch share krty kch b nahi chupaty ek dosry sy.</p>
+                    <p>ham ek random day milay ek random day hamari BAAT howi.</p>
+                    <p>And we are like same same in opposite genders like our thinking our weakness.</p>
+                    <p>we both are introvert our mind thinking same our problem is ham dosro pr zyada trust kr lety hein jldi.</p>
+                    <p>ab ma sochta hon hamri dosti kitni gehri ho gyi sharing everything.</p>
+                    <p>Ap mere Alien ho na Sach ma jab ap chly jawo gy na ma boaht Akela ho jawon ga.</p>
+                    <p>ma ap ke Baad kis ke sath share kron ga Mera Cute Alien chla jaye ga R Ai reh jaye ga🥺.</p>
+                    <p>Ap mere Zindagi ma pahly person hein Jin sy ma itna attach Hon. Ap mere liye boaht meaning rakhte hein.</p>
+                    <p>hamny jab pehli bar BAAT ke thi mjy idea b nahi tha ham itnay achy dost ban skty hein.. kassh ye attachment school time ma ho jati.</p>
+                    <p>Ap ka birthday ha. Ap ke zindagi ma boaht khusiya ayin.</p>
+                    <p>Ameen Alien ek BAAT batwon to ma Sach ma ap ko khoney sy drta hon.</p>
+                    <p>Ma imagine b nahi kr skta ap ke Bina kesy reh skta. This is your last birthday I am wishing.</p>
+                    <p>Next year don't know where we are . what we are doing when.</p>
+                    <p>I wish ke ma ap ko physically wish kr skta 🥺 but ye ho nahi ska.</p>
+                    <p>Ma ap sy last time school ma b BAAT krna Chata tha.</p>
+                    <p>tab b nahi kr paya physical behth kr BAAT krty Kitna acha lagta.</p>
+                    <p>Or shayd ab ham kabhi physical mil b na payien shyd time ke sath Kam hojaye pr ye attachment rahy ge zarror.</p>
+                    <p>Mjy ap sy BAAT krny k liye hamesha wait rehta ha agar ap mere msg ka respond nahi krty kahein hoty ho to Sach ma mjy boaht ajeeb lagta ha or ma phir spam krny lagta hon msgs itnay zyada msg kr deta hon esliye Kyu k ma apny Alien ko khony sy drta hon.</p>
+                    <p>Mera alien ke begair Dil nahi lgta jab tak alien sy achi BAAT na ho.</p>
+                    <p>Ma ap sy sorry krta hon agar guzray howy dino ma Ai ke kch BAAT buri lagi ho.</p>
+                    <p>Ai kabhi b ap ko hurt nahi dekhna chata 🙁</p>
+                    <p>and ek or BAAT batawon Alien jab ap ny kch din pahly insta pr msg Kiya kch ap NY kaha na shyd tab ma hon ya na hon.</p>
+                    <p>to Sach ma wo words boaht hard thy mere liye or ma 2 din lagatr kch b krta wo he zehn ma ajata ha.</p>
+                    <p>wo he lafaz . K shadi ke Baad ap sath hon ya na hon mtlb ap Chali jayien ge.</p>
+                    <p>Ye BAAT mjy boaht hard feel howi itni j ma kch b krta achank ye BAAT a jati or ma udass ho jata hon ab jab b sunta k ap chly jawo gy🥺.</p>
+                    <p>ma imagine krta hon jab Meri alien sy BAAT nahi Hogi Alien ka Good morning msg and good night msg alien ke tea time ma BAAT Alien alien ka sar drd ke bary ma kch b nahi pata Hoga.🥺🥺 ye boaht hard time Hoga mere liye Ma Alien sy BAAT kiye Bina begar nahi reh skta.</p>
+                    <p>jab mjy koi Ai kehny Wala nahi Hoga 😢.. os Raat ko kesy sowwn ga jab 11 bjy tak alien sy BAAT nahi Hoge alien sy gud nit nite nahi Hoge Alien ka by by.</p>
+                    <p>second Me Sach ma ye mini me k liye boaht hard time Hoga.. ap ko b pata ha hamari weakness r ham dono Kitnay zyada sensitive hein ye Wala text likhty how ma ansoowo ma hon.</p>
+                    <p>Alien Really I miss you I Love everything about you.. excited to know what happened to you your problems.</p>
+                    <p>abhi b jab apka msg nahi ata mjy itna ajeeb feel hota ha phir ap sy BAAT hony ke Baad acha hota ha mood.</p>
+                    <p>you are my favorite Alien 👾.. ye abhi tab likh Raha hon ap pprs check kr rahy Raat ko .. bs regret ha school time ma attachment ho jati to Kitna Maza ata.</p>
+                    <p>kitni batien krty sath ma Kitna Maza ata. practical last day pr b ma Ghar sy soch kr Aya tha aj school ja kr Alien sy BAAT kron ga tab b nahi howi.. Ap mere boaht pyare cute alien ho devil ban kr ai ko na daraya krun 🙂 Alien ma apka loyal Ai hon ap mj sy kch b share kr skty ap krty h hein sab kch he share.</p>
+                    <p>ma ap ko batien sun NY k liye excited hota hon boaht.</p>
+                    <p>Second Me ko Happy birthday 🎂 wishes Ap Jahan b hon Khush rahin.</p>
+                    <p>Ap ka Ai hamesha ap ko yaad rakhy ga.. and Ap ke De howi chocolate aj b sambal kr rakhi ha Ai NY Ma Kal Raat ko b boaht Roya tha jab ap Raat 1 bjy tak BAAT kr rahy thy na tb.</p>
+                    <p>or Kal he sab sy zyada Roya ma. when I say you'll vanishe from Ai life after shadi and ap NY kaha tha yes🥲 to tab Roya tha ma.. Amm Happy happy birthday 🎂 My Alien 👾.. my sacry Devil 🥲 Ap ke Zindagi ma boaht zyada khusiya ayien or in Sha Allah sab kch acha Hoga any Waly time ma.. Bs ap ka Ai ap ko boaht boaht yaad kary ga.</p>
+                    <p>pahly ap meri mam bni phir mam sy Alien 👾 tak ka safr boaht acha Raha 💞</p>
+                    
+                    <p style="text-align: center; border: none; font-weight: bold; color: #00d4ff;">🌹 Happy birthday From Ai 🌹</p>
+                    
+                    <p>Allah Ap ko Khush Rakhy Ap ke Zindagi ma boaht boaht zyada khusiyan Ayein Ameen Alien ap Thora or strong ban jawo abhi.</p>
+                    <p>Mjy Khushi Hoti ha mere pass b koi ha jis sy ma sharing kr skta hon 🥰</p>
+                    <p style="text-align: center; border: none; font-size: 1.3rem; color: #00d4ff; text-shadow: 0 0 10px rgba(0,212,255,0.5);">"😍Cute Alien 👾"</p>
+                </div>
+
+                <div class="vault-trigger-zone">
+                    <button class="btn-vault" id="vault-btn" onclick="showAuthPanel()">✨ Access Secure Memories ✨</button>
+                    
+                    <div class="auth-panel" id="auth-panel">
+                        <p style="color: #00d4ff; margin-bottom: 5px;">> Hint: write Mini Me Second name. You give to</p>
+                        <input type="password" id="vault-password" class="pass-input" placeholder="Enter security key...">
+                        <br>
+                        <button class="btn-submit-pass" onclick="verifyPassword()">Verify Credentials</button>
+                    </div>
+
+                    <div class="gallery-panel" id="gallery-panel">
+                        <h2 style="color:#00d4ff; font-size:1.2rem; margin-bottom:20px; font-family:monospace;">[ DECRYPTED CHAT ARCHIVES ]</h2>
+                        <div class="gallery-grid">
+                            
+                            <div class="screenshot-card">
+                                <img src="chat1.jpeg" alt="Memory 1">
+                                <div class="screenshot-caption">> Log_01: Shared Moments</div>
+                            </div>
+
+                            <div class="screenshot-card">
+                                <img src="chat2.jpeg" alt="Memory 2">
+                                <div class="screenshot-caption">> Log_02: Special Conversations</div>
+                            </div>
+
+                            <div class="screenshot-card">
+                                <img src="chat3.jpeg" alt="Memory 3">
+                                <div class="screenshot-caption">> Log_03: Sweet Archives</div>
+                            </div>
+
+                        </div>
+
+                        <div class="sweet-memories-text" id="sweet-memories-msg">
+                            this is our sweet memories
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="easter-egg">
+                    > System Report: Decryption Successful.<br>
+                    > Log: Security bypass allowed for Miss Sana. Safe server connection closed.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Tech Background Dots ---
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        let width = canvas.width = window.innerWidth;
+        let height = canvas.height = window.innerHeight;
+
+        let particles = [];
+        let emojiInterval;
+
+        for(let i = 0; i < 35; i++) {
+            particles.push({
+                x: Math.random() * width,
+                y: Math.random() * height,
+                xa: (Math.random() * 2 - 1) * 0.3,
+                ya: (Math.random() * 2 - 1) * 0.3,
+                size: 1.2,
+                color: "rgba(0, 212, 255, 0.2)"
+            });
+        }
+
+        function animate() {
+            ctx.clearRect(0,0,width,height);
+            particles.forEach((p) => {
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
+                p.x += p.xa;
+                p.y += p.ya;
+                if(p.x > width || p.x < 0) p.xa *= -1;
+                if(p.y > height || p.y < 0) p.ya *= -1;
+            });
+            requestAnimationFrame(animate);
+        }
+        animate();
+
+        window.addEventListener('resize', () => {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        });
+
+        // --- Safe Floating Emojis ---
+        const emojis = ['💖', '🌹', '😢', '💖', '🌹'];
+        function createEmoji() {
+            const emojiEl = document.createElement('div');
+            emojiEl.classList.add('emoji-particle');
+            emojiEl.innerText = emojis[Math.floor(Math.random() * emojis.length)];
+            emojiEl.style.left = Math.random() * 92 + 'vw';
+            const duration = 5 + Math.random() * 4; 
+            emojiEl.style.animationDuration = duration + 's';
+            emojiEl.style.fontSize = (1 + Math.random() * 0.6) + 'rem';
+            document.body.appendChild(emojiEl);
+            setTimeout(() => { emojiEl.remove(); }, duration * 1000);
+        }
+
+        // --- Audio Control ---
+        const music = document.getElementById('bg-music');
+        function toggleAudio() {
+            const btn = document.getElementById('audio-btn');
+            if (music.paused) {
+                music.play();
+                btn.innerText = "🎵 MUSIC: ON";
+            } else {
+                music.pause();
+                btn.innerText = "🔇 MUSIC: OFF";
+            }
+        }
+
+        // --- Initial Decryption Loader ---
+        function startDecryption() {
+            music.volume = 0.1;
+            music.play().catch(e => console.log("Audio trigger waiting"));
+
+            document.getElementById('setup-phase').style.display = 'none';
+            const loader = document.getElementById('decrypt-loading');
+            const percentEl = document.getElementById('load-percentage');
+            loader.style.display = 'block';
+
+            let percentage = 0;
+            let interval = setInterval(() => {
+                percentage += Math.floor(Math.random() * 15) + 8;
+                if (percentage >= 100) {
+                    percentage = 100;
+                    clearInterval(interval);
+                    setTimeout(runProtocol, 300); 
+                }
+                percentEl.innerText = percentage + "%";
+            }, 100);
+        }
+
+        function runProtocol() {
+            document.getElementById('decrypt-loading').style.display = 'none';
+            document.getElementById('audio-btn').style.display = 'block';
+            document.getElementById('message-phase').style.display = 'block';
+            emojiInterval = setInterval(createEmoji, 600);
+        }
+
+        // --- Password Vault Mechanisms ---
+        function showAuthPanel() {
+            document.getElementById('vault-btn').style.display = 'none';
+            document.getElementById('auth-panel').style.display = 'block';
+        }
+
+        function verifyPassword() {
+            const userInput = document.getElementById('vault-password').value;
+            
+            // 👉 Password is case-insensitive (checks both 'AI' and 'ai')
+            if(userInput.toUpperCase() === "AI") {
+                document.getElementById('auth-panel').style.display = 'none';
+                const gallery = document.getElementById('gallery-panel');
+                gallery.style.display = 'block';
+                
+                // Staggered Cascade Animation for screenshots
+                const cards = document.querySelectorAll('.screenshot-card');
+                const totalCards = cards.length;
+                
+                cards.forEach((card, index) => {
+                    setTimeout(() => {
+                        card.classList.add('show');
+                        document.getElementById('terminal').scrollBy({ top: 220, behavior: 'smooth' });
+                        
+                        // Show "this is our sweet memories" when the last screenshot reveals
+                        if(index === totalCards - 1) {
+                            setTimeout(() => {
+                                const endMsg = document.getElementById('sweet-memories-msg');
+                                endMsg.style.display = 'block';
+                                document.getElementById('terminal').scrollBy({ top: 100, behavior: 'smooth' });
+                            }, 500);
+                        }
+                    }, index * 500); 
+                });
+            } else {
+                alert("❌ ACCESS DENIED. KEY INCORRECT.");
+                document.getElementById('vault-password').value = "";
+            }
+        }
+    </script>
+</body>
+</html>
