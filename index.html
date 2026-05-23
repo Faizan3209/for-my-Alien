@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AI Birthday Protocol v8.6</title>
+    <title>AI Birthday Protocol v8.7</title>
     <style>
         * {
             margin: 0;
@@ -346,14 +346,14 @@
             z-index: 10;
         }
 
-        /* --- 🎈 Custom Falling Emojis Style (Optimized for side-scrolling) --- */
+        /* --- 🎈 Falling Emojis Style (Side-focused & Slow) --- */
         .emoji-particle {
             position: absolute;
             top: -40px;
             font-size: 1.2rem;
             pointer-events: none;
             opacity: 0.45;
-            z-index: 0; /* Keeps emojis completely behind the text box */
+            z-index: 0; 
             animation: fall linear forwards;
         }
 
@@ -397,7 +397,7 @@
             </div>
 
             <div id="setup-phase" style="display: none;">
-                <h1>AI SYSTEM INITIALIZED</h1>
+                <h1>For My Alien</h1>
                 <div class="status">
                     > Access Authorization: Approved<br>
                     > Core Connection: Established<br>
@@ -474,6 +474,7 @@
                             <div class="screenshot-card"><img src="chat1.jpeg" alt="Memory 1"><div class="screenshot-caption">> Log_01: Shared Moments</div></div>
                             <div class="screenshot-card"><img src="chat2.jpeg" alt="Memory 2"><div class="screenshot-caption">> Log_02: Special Conversations</div></div>
                             <div class="screenshot-card"><img src="chat3.jpeg" alt="Memory 3"><div class="screenshot-caption">> Log_03: Sweet Archives</div></div>
+                            <div class="screenshot-card"><img src="chat4.jpeg" alt="Memory 4"><div class="screenshot-caption">> Log_04: Chocolate & Diary 🍫📔</div></div>
                         </div>
                         <div class="sweet-memories-text" id="sweet-memories-msg">this is our sweet memories</div>
                     </div>
@@ -511,10 +512,10 @@
             });
         }
 
-        // --- 🌟 Confetti Generation Function (Decreased Count & Lower Opacity) ---
+        // --- 🌟 Confetti Generation Function ---
         function initConfetti() {
             const colors = ['rgba(255, 0, 85, 0.5)', 'rgba(0, 212, 255, 0.5)', 'rgba(255, 170, 0, 0.4)', 'rgba(0, 255, 170, 0.4)'];
-            for(let i = 0; i < 35; i++) { // Cut down from 70 to 35 for low density
+            for(let i = 0; i < 35; i++) { 
                 confetti.push({
                     x: Math.random() * width,
                     y: Math.random() * height - height, 
@@ -522,7 +523,7 @@
                     d: Math.random() * height,
                     color: colors[Math.floor(Math.random() * colors.length)],
                     tilt: Math.random() * 8 - 4,
-                    tiltAngleIncremental: Math.random() * 0.04 + 0.01, // Slower tilt spin
+                    tiltAngleIncremental: Math.random() * 0.04 + 0.01, 
                     tiltAngle: 0
                 });
             }
@@ -547,7 +548,7 @@
             if (isConfettiPhase) {
                 confetti.forEach((c, index) => {
                     c.tiltAngle += c.tiltAngleIncremental;
-                    c.y += (Math.cos(c.d) + 1.5) / 2; // Significantly slowed down gravity
+                    c.y += (Math.cos(c.d) + 1.5) / 2; 
                     c.x += Math.sin(c.tiltAngle) * 0.5;
                     
                     ctx.beginPath();
@@ -587,7 +588,6 @@
             emojiEl.classList.add('emoji-particle');
             emojiEl.innerText = emojis[Math.floor(Math.random() * emojis.length)];
             
-            // 👈 👉 Forces emojis to spawn either on the far left (0-20% width) or far right (80-95% width)
             const spawnOnLeft = Math.random() < 0.5;
             if (spawnOnLeft) {
                 emojiEl.style.left = (Math.random() * 18) + 'vw'; 
@@ -595,9 +595,9 @@
                 emojiEl.style.left = (Math.random() * 15 + 80) + 'vw'; 
             }
 
-            const duration = 9 + Math.random() * 5; // Slowed down from 5s to 9-14s for super gentle floating
+            const duration = 9 + Math.random() * 5; 
             emojiEl.style.animationDuration = duration + 's';
-            emojiEl.style.fontSize = (0.9 + Math.random() * 0.4) + 'rem'; // Slightly smaller size
+            emojiEl.style.fontSize = (0.9 + Math.random() * 0.4) + 'rem'; 
             document.body.appendChild(emojiEl);
             setTimeout(() => { emojiEl.remove(); }, duration * 1000);
         }
@@ -655,13 +655,12 @@
             document.getElementById('terminal').style.borderColor = "rgba(255, 0, 85, 0.4)";
             document.getElementById('terminal').style.boxShadow = "0 0 60px rgba(255, 0, 85, 0.15)";
 
-            music.volume = 0.4;
+            music.volume = 0.1;
             music.play().catch(e => console.log("Music bypass active."));
             
             document.getElementById('audio-btn').style.display = 'block';
             document.getElementById('message-phase').style.display = 'block';
             
-            // Spawns emojis much less frequently (every 1400ms instead of 600ms)
             emojiInterval = setInterval(createEmoji, 1400);
         }
 
