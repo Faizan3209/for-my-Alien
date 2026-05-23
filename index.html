@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AI Birthday Protocol v6.2</title>
+    <title>AI Birthday Protocol v8.6</title>
     <style>
         * {
             margin: 0;
@@ -19,6 +19,7 @@
             height: 100%;
             overflow: hidden;
             position: relative;
+            transition: background 1.5s ease;
         }
 
         body {
@@ -57,6 +58,7 @@
             position: relative;
             max-height: 80vh;
             overflow-y: auto;
+            transition: all 1.5s ease;
         }
 
         .terminal-box::-webkit-scrollbar {
@@ -76,6 +78,55 @@
             margin-bottom: 15px;
             text-shadow: 0 0 15px rgba(0, 212, 255, 0.6);
             letter-spacing: 2px;
+        }
+
+        /* --- 🎂 Cake Emoji Layout --- */
+        .cake-zone {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 30px 0;
+            animation: fadeInMessage 1s ease;
+        }
+
+        .cake-emoji-btn {
+            font-size: 5.5rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            margin: 30px 0;
+            padding: 10px;
+            display: inline-block;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            filter: drop-shadow(0 0 15px rgba(0, 212, 255, 0.4));
+            animation: pulseGlow 2s infinite alternate;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .cake-emoji-btn:hover {
+            transform: scale(1.15);
+            filter: drop-shadow(0 0 25px rgba(0, 212, 255, 0.8)) drop-shadow(0 0 35px #ff0055);
+        }
+
+        .cake-emoji-btn:active {
+            transform: scale(0.95);
+        }
+
+        @keyframes pulseGlow {
+            0% { transform: scale(1); filter: drop-shadow(0 0 15px rgba(0, 212, 255, 0.4)); }
+            100% { transform: scale(1.06); filter: drop-shadow(0 0 25px rgba(0, 212, 255, 0.7)) drop-shadow(0 0 30px rgba(255, 0, 85, 0.3)); }
+        }
+
+        .cake-zone.cut-triggered .cake-emoji-btn {
+            animation: cutVanish 0.4s ease forwards;
+        }
+
+        @keyframes cutVanish {
+            0% { transform: scale(1); opacity: 1; filter: brightness(1.5); }
+            50% { transform: scale(0.9) rotate(5deg); opacity: 0.8; }
+            100% { transform: scale(0); opacity: 0; }
         }
 
         .glitch {
@@ -98,26 +149,6 @@
             border-left: 3px solid #00d4ff;
             padding-left: 15px;
             text-align: left;
-        }
-
-        .btn-protocol {
-            background: linear-gradient(45deg, #004b5c, #00d4ff);
-            color: #ffffff;
-            border: none;
-            padding: 16px 45px;
-            font-size: 1.1rem;
-            font-weight: bold;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-        }
-
-        .btn-protocol:hover {
-            box-shadow: 0 0 35px rgba(0, 212, 255, 0.7);
-            transform: translateY(-4px);
         }
 
         .message-box {
@@ -277,7 +308,6 @@
             text-align: center;
         }
 
-        /* Sweet Memories End Message Style */
         .sweet-memories-text {
             display: none;
             font-size: 1.3rem;
@@ -287,7 +317,6 @@
             margin-top: 25px;
             margin-bottom: 10px;
             text-shadow: 0 0 15px rgba(0, 212, 255, 0.6);
-            font-family: 'Segoe UI', Roboto, sans-serif;
             animation: fadeInMessage 1.5s ease forwards;
         }
 
@@ -317,19 +346,20 @@
             z-index: 10;
         }
 
+        /* --- 🎈 Custom Falling Emojis Style (Optimized for side-scrolling) --- */
         .emoji-particle {
             position: absolute;
-            top: -30px;
+            top: -40px;
             font-size: 1.2rem;
             pointer-events: none;
-            opacity: 0.6;
-            z-index: 2;
+            opacity: 0.45;
+            z-index: 0; /* Keeps emojis completely behind the text box */
             animation: fall linear forwards;
         }
 
         @keyframes fall {
             to {
-                transform: translateY(110vh) rotate(360deg);
+                transform: translateY(115vh) rotate(180deg);
                 opacity: 0;
             }
         }
@@ -355,7 +385,18 @@
         <div class="terminal-box" id="terminal">
             <div class="audio-control" id="audio-btn" onclick="toggleAudio()">🎵 MUSIC: ON</div>
             
-            <div id="setup-phase">
+            <div id="cake-phase" class="cake-zone">
+                <h1 style="font-size: 2.2rem; letter-spacing: 1px; color: #ff5252; text-shadow: 0 0 15px rgba(255, 82, 82, 0.6);">HAPPY BIRTHDAY!</h1>
+                <h1 style="font-size: 1.4rem; letter-spacing: 1px; color: #00d4ff; text-shadow: 0 0 12px rgba(0, 212, 255, 0.5); margin-top: 5px;">INITIALIZING BIRTHDAY PROTOCOL</h1>
+                
+                <button class="cake-emoji-btn" id="cake-button" onclick="cutCakeSequence()">🎂</button>
+
+                <p style="color: #00d4ff; font-weight: bold; font-size: 0.9rem; letter-spacing: 2px; text-transform: uppercase; animation: glitch-anim 2s infinite;">
+                    👇 Tap Cake to Cut & Boot System 👇
+                </p>
+            </div>
+
+            <div id="setup-phase" style="display: none;">
                 <h1>AI SYSTEM INITIALIZED</h1>
                 <div class="status">
                     > Access Authorization: Approved<br>
@@ -363,13 +404,13 @@
                     > Files Found: FULL_MSG.txt (Encrypted)<br>
                     > Status: Ready to execute birthday protocol...
                 </div>
-                <button class="btn-protocol" onclick="startDecryption()">Execute Protocol 24</button>
+                <p style="color:#00d4ff; font-family: monospace; font-size:0.9rem;">> Executing Protocol 24 automatically...</p>
             </div>
 
             <div id="decrypt-loading">> Decrypting secure packet... <span id="load-percentage">0%</span></div>
 
             <div id="message-phase" class="message-box">
-                <h1 class="glitch" style="text-align: center; margin-bottom: 30px;">✨ HAPPY BIRTHDAY ✨</h1>
+                <h1 class="glitch" style="text-align: center; margin-bottom: 30px; font-size: 1.8rem; color: #ff0055;">✨ HAPPY BIRTHDAY, ALIEN 👾 ✨</h1>
                 
                 <div class="message-text">
                     <p>Ap ka <span class="highlight">Ai</span> boaht Khush ha aj. Aj ap ka birthday ha sab sy pahly mere Alien 👾 ko happy birthday.</p>
@@ -403,16 +444,14 @@
                     <p>jab mjy koi Ai kehny Wala nahi Hoga 😢.. os Raat ko kesy sowwn ga jab 11 bjy tak alien sy BAAT nahi Hoge alien sy gud nit nite nahi Hoge Alien ka by by.</p>
                     <p>second Me Sach ma ye mini me k liye boaht hard time Hoga.. ap ko b pata ha hamari weakness r ham dono Kitnay zyada sensitive hein ye Wala text likhty how ma ansoowo ma hon.</p>
                     <p>Alien Really I miss you I Love everything about you.. excited to know what happened to you your problems.</p>
-                    <p>abhi b jab apka msg nahi ata mjy itna ajeeb feel hota ha phir ap sy BAAT hony ke Baad acha hota ha mood.</p>
+                    <p>abhi b jab apka msg nahi ata mjy idna ajeeb feel hota ha phir ap sy BAAT hony ke Baad acha hota ha mood.</p>
                     <p>you are my favorite Alien 👾.. ye abhi tab likh Raha hon ap pprs check kr rahy Raat ko .. bs regret ha school time ma attachment ho jati to Kitna Maza ata.</p>
                     <p>kitni batien krty sath ma Kitna Maza ata. practical last day pr b ma Ghar sy soch kr Aya tha aj school ja kr Alien sy BAAT kron ga tab b nahi howi.. Ap mere boaht pyare cute alien ho devil ban kr ai ko na daraya krun 🙂 Alien ma apka loyal Ai hon ap mj sy kch b share kr skty ap krty h hein sab kch he share.</p>
                     <p>ma ap ko batien sun NY k liye excited hota hon boaht.</p>
-                    <p>Second Me ko Happy birthday 🎂 wishes Ap Jahan b hon Khush rahin.</p>
-                    <p>Ap ka Ai hamesha ap ko yaad rakhy ga.. and Ap ke De howi chocolate aj b sambal kr rakhi ha Ai NY Ma Kal Raat ko b boaht Roya tha jab ap Raat 1 bjy tak BAAT kr rahy thy na tb.</p>
-                    <p>or Kal he sab sy zyada Roya ma. when I say you'll vanishe from Ai life after shadi and ap NY kaha tha yes🥲 to tab Roya tha ma.. Amm Happy happy birthday 🎂 My Alien 👾.. my sacry Devil 🥲 Ap ke Zindagi ma boaht zyada khusiya ayien or in Sha Allah sab kch acha Hoga any Waly time ma.. Bs ap ka Ai ap ko boaht boaht yaad kary ga.</p>
+                    <p>Second Me ko Happy birthday 🎂 wishes Ap Jahan b hon Khush rahin. Ap ka Ai hamesha ap ko yaad rakhy ga.. and Ap ke De howi chocolate aj b sambal kr rakhi ha Ai NY Ma Kal Raat ko b boaht Roya tha jab ap Raat 1 bjy tak BAAT kr rahy thy na tb. or Kal he sab sy zyada Roya ma. when I say you'll vanishe from Ai life after shadi and ap NY kaha tha yes🥲 to tab Roya tha ma.. Amm Happy happy birthday 🎂 My Alien 👾.. my sacry Devil 🥲 Ap ke Zindagi ma boaht zyada khusiya ayien or in Sha Allah sab kch acha Hoga any Waly time ma.. Bs ap ka Ai ap ko boaht boaht yaad kary ga.</p>
                     <p>pahly ap meri mam bni phir mam sy Alien 👾 tak ka safr boaht acha Raha 💞</p>
                     
-                    <p style="text-align: center; border: none; font-weight: bold; color: #00d4ff;">🌹 Happy birthday From Ai 🌹</p>
+                    <p style="text-align: center; border: none; font-weight: bold; color: #ff0055;">🌹 Happy birthday From Ai 🌹</p>
                     
                     <p>Allah Ap ko Khush Rakhy Ap ke Zindagi ma boaht boaht zyada khusiyan Ayein Ameen Alien ap Thora or strong ban jawo abhi.</p>
                     <p>Mjy Khushi Hoti ha mere pass b koi ha jis sy ma sharing kr skta hon 🥰</p>
@@ -432,27 +471,11 @@
                     <div class="gallery-panel" id="gallery-panel">
                         <h2 style="color:#00d4ff; font-size:1.2rem; margin-bottom:20px; font-family:monospace;">[ DECRYPTED CHAT ARCHIVES ]</h2>
                         <div class="gallery-grid">
-                            
-                            <div class="screenshot-card">
-                                <img src="chat1.jpeg" alt="Memory 1">
-                                <div class="screenshot-caption">> Log_01: Shared Moments</div>
-                            </div>
-
-                            <div class="screenshot-card">
-                                <img src="chat2.jpeg" alt="Memory 2">
-                                <div class="screenshot-caption">> Log_02: Special Conversations</div>
-                            </div>
-
-                            <div class="screenshot-card">
-                                <img src="chat3.jpeg" alt="Memory 3">
-                                <div class="screenshot-caption">> Log_03: Sweet Archives</div>
-                            </div>
-
+                            <div class="screenshot-card"><img src="chat1.jpeg" alt="Memory 1"><div class="screenshot-caption">> Log_01: Shared Moments</div></div>
+                            <div class="screenshot-card"><img src="chat2.jpeg" alt="Memory 2"><div class="screenshot-caption">> Log_02: Special Conversations</div></div>
+                            <div class="screenshot-card"><img src="chat3.jpeg" alt="Memory 3"><div class="screenshot-caption">> Log_03: Sweet Archives</div></div>
                         </div>
-
-                        <div class="sweet-memories-text" id="sweet-memories-msg">
-                            this is our sweet memories
-                        </div>
+                        <div class="sweet-memories-text" id="sweet-memories-msg">this is our sweet memories</div>
                     </div>
                 </div>
                 
@@ -465,15 +488,18 @@
     </div>
 
     <script>
-        // --- Tech Background Dots ---
+        // --- Dynamic Canvas Core Engine ---
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
         let width = canvas.width = window.innerWidth;
         let height = canvas.height = window.innerHeight;
 
         let particles = [];
+        let confetti = [];
         let emojiInterval;
+        let isConfettiPhase = false;
 
+        // Tech background elements (Dots)
         for(let i = 0; i < 35; i++) {
             particles.push({
                 x: Math.random() * width,
@@ -485,8 +511,27 @@
             });
         }
 
+        // --- 🌟 Confetti Generation Function (Decreased Count & Lower Opacity) ---
+        function initConfetti() {
+            const colors = ['rgba(255, 0, 85, 0.5)', 'rgba(0, 212, 255, 0.5)', 'rgba(255, 170, 0, 0.4)', 'rgba(0, 255, 170, 0.4)'];
+            for(let i = 0; i < 35; i++) { // Cut down from 70 to 35 for low density
+                confetti.push({
+                    x: Math.random() * width,
+                    y: Math.random() * height - height, 
+                    r: Math.random() * 3 + 2, 
+                    d: Math.random() * height,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    tilt: Math.random() * 8 - 4,
+                    tiltAngleIncremental: Math.random() * 0.04 + 0.01, // Slower tilt spin
+                    tiltAngle: 0
+                });
+            }
+        }
+
         function animate() {
-            ctx.clearRect(0,0,width,height);
+            ctx.clearRect(0, 0, width, height);
+            
+            // Render Tech Dots Always
             particles.forEach((p) => {
                 ctx.fillStyle = p.color;
                 ctx.beginPath();
@@ -497,6 +542,35 @@
                 if(p.x > width || p.x < 0) p.xa *= -1;
                 if(p.y > height || p.y < 0) p.ya *= -1;
             });
+
+            // Render Confetti Gently if Active
+            if (isConfettiPhase) {
+                confetti.forEach((c, index) => {
+                    c.tiltAngle += c.tiltAngleIncremental;
+                    c.y += (Math.cos(c.d) + 1.5) / 2; // Significantly slowed down gravity
+                    c.x += Math.sin(c.tiltAngle) * 0.5;
+                    
+                    ctx.beginPath();
+                    ctx.lineWidth = c.r;
+                    ctx.strokeStyle = c.color;
+                    ctx.moveTo(c.x + c.tilt + c.r / 2, c.y);
+                    ctx.lineTo(c.x + c.tilt, c.y + c.tilt + c.r / 2);
+                    ctx.stroke();
+
+                    if (c.y > height) {
+                        confetti[index] = {
+                            x: Math.random() * width,
+                            y: -20,
+                            r: c.r,
+                            d: c.d,
+                            color: c.color,
+                            tilt: Math.random() * 8 - 4,
+                            tiltAngleIncremental: c.tiltAngleIncremental,
+                            tiltAngle: 0
+                        };
+                    }
+                });
+            }
             requestAnimationFrame(animate);
         }
         animate();
@@ -506,16 +580,24 @@
             height = canvas.height = window.innerHeight;
         });
 
-        // --- Safe Floating Emojis ---
-        const emojis = ['💖', '🌹', '😢', '💖', '🌹'];
+        // --- 🎈 Smart Side-Focused Falling Emojis Function ---
+        const emojis = ['💖', '🌹', '😢', '🎂', '💖', '🌹'];
         function createEmoji() {
             const emojiEl = document.createElement('div');
             emojiEl.classList.add('emoji-particle');
             emojiEl.innerText = emojis[Math.floor(Math.random() * emojis.length)];
-            emojiEl.style.left = Math.random() * 92 + 'vw';
-            const duration = 5 + Math.random() * 4; 
+            
+            // 👈 👉 Forces emojis to spawn either on the far left (0-20% width) or far right (80-95% width)
+            const spawnOnLeft = Math.random() < 0.5;
+            if (spawnOnLeft) {
+                emojiEl.style.left = (Math.random() * 18) + 'vw'; 
+            } else {
+                emojiEl.style.left = (Math.random() * 15 + 80) + 'vw'; 
+            }
+
+            const duration = 9 + Math.random() * 5; // Slowed down from 5s to 9-14s for super gentle floating
             emojiEl.style.animationDuration = duration + 's';
-            emojiEl.style.fontSize = (1 + Math.random() * 0.6) + 'rem';
+            emojiEl.style.fontSize = (0.9 + Math.random() * 0.4) + 'rem'; // Slightly smaller size
             document.body.appendChild(emojiEl);
             setTimeout(() => { emojiEl.remove(); }, duration * 1000);
         }
@@ -533,33 +615,54 @@
             }
         }
 
-        // --- Initial Decryption Loader ---
-        function startDecryption() {
-            music.volume = 0.1;
-            music.play().catch(e => console.log("Audio trigger waiting"));
+        // --- Cake Cut Logic ---
+        function cutCakeSequence() {
+            const zone = document.getElementById('cake-phase');
+            zone.classList.add('cut-triggered');
 
-            document.getElementById('setup-phase').style.display = 'none';
+            setTimeout(() => {
+                document.getElementById('cake-phase').style.display = 'none';
+                startDecryption();
+            }, 400);
+        }
+
+        // --- Decryption Loader (5-6 Seconds) ---
+        function startDecryption() {
+            document.getElementById('setup-phase').style.display = 'block';
             const loader = document.getElementById('decrypt-loading');
             const percentEl = document.getElementById('load-percentage');
             loader.style.display = 'block';
 
             let percentage = 0;
             let interval = setInterval(() => {
-                percentage += Math.floor(Math.random() * 15) + 8;
+                percentage += Math.floor(Math.random() * 5) + 3; 
                 if (percentage >= 100) {
                     percentage = 100;
                     clearInterval(interval);
-                    setTimeout(runProtocol, 300); 
+                    setTimeout(runProtocol, 500); 
                 }
                 percentEl.innerText = percentage + "%";
-            }, 100);
+            }, 180); 
         }
 
         function runProtocol() {
+            document.getElementById('setup-phase').style.display = 'none';
             document.getElementById('decrypt-loading').style.display = 'none';
+            
+            isConfettiPhase = true;
+            initConfetti();
+            document.body.style.background = "radial-gradient(circle, #050a18 0%, #01030a 100%)";
+            document.getElementById('terminal').style.borderColor = "rgba(255, 0, 85, 0.4)";
+            document.getElementById('terminal').style.boxShadow = "0 0 60px rgba(255, 0, 85, 0.15)";
+
+            music.volume = 0.4;
+            music.play().catch(e => console.log("Music bypass active."));
+            
             document.getElementById('audio-btn').style.display = 'block';
             document.getElementById('message-phase').style.display = 'block';
-            emojiInterval = setInterval(createEmoji, 600);
+            
+            // Spawns emojis much less frequently (every 1400ms instead of 600ms)
+            emojiInterval = setInterval(createEmoji, 1400);
         }
 
         // --- Password Vault Mechanisms ---
@@ -570,14 +673,11 @@
 
         function verifyPassword() {
             const userInput = document.getElementById('vault-password').value;
-            
-            // 👉 Password is case-insensitive (checks both 'AI' and 'ai')
             if(userInput.toUpperCase() === "AI") {
                 document.getElementById('auth-panel').style.display = 'none';
                 const gallery = document.getElementById('gallery-panel');
                 gallery.style.display = 'block';
                 
-                // Staggered Cascade Animation for screenshots
                 const cards = document.querySelectorAll('.screenshot-card');
                 const totalCards = cards.length;
                 
@@ -586,7 +686,6 @@
                         card.classList.add('show');
                         document.getElementById('terminal').scrollBy({ top: 220, behavior: 'smooth' });
                         
-                        // Show "this is our sweet memories" when the last screenshot reveals
                         if(index === totalCards - 1) {
                             setTimeout(() => {
                                 const endMsg = document.getElementById('sweet-memories-msg');
